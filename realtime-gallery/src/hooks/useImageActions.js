@@ -6,14 +6,12 @@ export function useImageActions(imageId) {
     images: {
       $: { where: { unsplashId: imageId } },
       comments: {},
-      bursts: {},
     },
   });
 
   const imageDoc = data?.images?.[0];
   const reactions = imageDoc?.reactions ?? [];
   const comments = imageDoc?.comments ?? [];
-  const bursts = imageDoc?.bursts ?? [];
 
   // 2. Add Reaction Logic
   const addReaction = (emoji) => {
@@ -46,17 +44,6 @@ export function useImageActions(imageId) {
     }
   };
 
-  const triggerBurst = (emoji) => {
-    const burstId = id();
-    if (imageDoc) {
-      db.transact([
-        db.tx.bursts[burstId].update({ emoji, createdAt: Date.now() }),
-        db.tx.images[imageDoc.id].link({ bursts: burstId }),
-      ]);
-    }
-    // Optional: Add logic to delete bursts older than 5 seconds to keep DB clean
-  };
-
   return {
     reactions,
     totalReactions: reactions.length,
@@ -64,7 +51,5 @@ export function useImageActions(imageId) {
     addReaction,
     addComment,
     isLoading,
-    bursts: bursts.filter((b) => Date.now() - b.createdAt < 3000),
-    triggerBurst,
   };
 }

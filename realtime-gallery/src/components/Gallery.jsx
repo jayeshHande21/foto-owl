@@ -57,23 +57,7 @@ export default function Gallery() {
   const [activeImage, setActiveImage] = useState(null);
   const { ref, inView } = useInView();
 
-  function BurstLayer({ imageId }) {
-  const { bursts } = useImageActions(imageId);
-
-  return (
-    <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
-      {bursts.map((b) => (
-        <span
-          key={b.id}
-          className="absolute bottom-10 left-1/2 animate-emoji-float text-5xl"
-          style={{ left: `${40 + Math.random() * 20}%` }} // Randomize horizontal position slightly
-        >
-          {b.emoji}
-        </span>
-      ))}
-    </div>
-  );
-}
+ 
 
   useEffect(() => {
     if (inView && hasNextPage) fetchNextPage();
@@ -108,7 +92,7 @@ export default function Gallery() {
 
             {/* Left: Image (60%) */}
             <div className="w-full md:w-3/5 bg-black flex items-center justify-center overflow-hidden">
-            <BurstLayer imageId={activeImage.id} />
+            {/* <BurstLayer imageId={activeImage.id} /> */}
               <img src={activeImage.urls.regular} className="w-full h-full object-contain" alt="" />
             </div>
 

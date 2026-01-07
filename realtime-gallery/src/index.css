@@ -14,24 +14,17 @@
 .animate-fade-in {
   animation: fadeIn 0.8s ease-out forwards;
 }
-@keyframes pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.4); }
-  100% { transform: scale(1); }
+@keyframes slideInRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
-/* This class triggers whenever a reaction count changes */
-.animate-pop {
-  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes floatUp {
-  0% { transform: translateY(0) opacity(1); }
-  100% { transform: translateY(-100px) opacity(0); }
-}
-
-.floating-emoji {
-  position: absolute;
-  pointer-events: none;
-  animation: floatUp 1.5s ease-out forwards;
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
 }
