@@ -1,45 +1,83 @@
+import { useState } from "react";
+import EmojiPicker from "emoji-picker-react";
 import { useImageActions } from "../hooks/useImageActions";
 
-const EMOJIS = ["👍", "❤️", "😂"];
+export default function ImageReactions({ imageId, img }) {
+  const { reactions, addReaction, triggerBurst } = useImageActions(imageId);
+  const [showPicker, setShowPicker] = useState(false);
 
-export default function ImageReactions({ imageId }) {
-  const { reactions, addReaction } = useImageActions(imageId);
+  // Quick select options
+  const QUICK_EMOJIS = ["👍", "❤️", "🔥", "😂", "😮"];
 
-  // Helper to handle both the data update and the live animation
-  const handleReaction = (emoji) => {
-    addReaction(emoji );    // 1. Updates the counter (Permanent)
-     // 2. Fires the floating animation (Live Burst)
+  const handleEmojiClick = (emojiData) => {
+    const emoji = emojiData.emoji;
+    addReaction(emoji, img);
+    if (triggerBurst) triggerBurst(emoji);
+    setShowPicker(false); // Close picker after selection
   };
 
+  // Group reactions by count
+  const reactionCounts = reactions.reduce((acc, emoji) => {
+    acc[emoji] = (acc[emoji] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
-    <div className="mt-4">
-      <div className="flex gap-3 mb-2">
-        {EMOJIS.map((e) => (
-          <button 
-            key={e} 
-            onClick={() => handleReaction(e)} // <-- Use the helper here
-            className="text-2xl hover:scale-125 transition active:scale-90 cursor-pointer"
-          >
-            {e}
-          </button>
-        ))}
-      </div>
-      
-      {/* Counts display */}
-      <div className="flex gap-2 mt-2">
-        {EMOJIS.map((emoji) => {
-          const count = reactions.filter((r) => r === emoji).length;
-          if (count === 0) return null;
-          return (
-            <div 
-              key={emoji} 
-              className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-sm animate-pop" 
+    <div className="mt-4 relative">
+      <div className="flex items-center gap-3 mb-4">
+        {/* Quick Reactions */}
+        <div className="flex gap-2">
+          {QUICK_EMOJIS.map((emoji) => (
+            <button
+              key={emoji}
+              onClick={() => {
+                addReaction(emoji, img);
+                if (triggerBurst) triggerBurst(emoji);
+              }}
+              className="text-xl hover:scale-125 transition active:scale-90"
             >
-              <span>{emoji}</span> 
-              <span className="font-bold text-gray-700">{count}</span>
-            </div>
-          );
-        })}
+              {emoji}
+            </button>
+          ))}
+        </div>
+
+        {/* The Picker Toggle */}
+        <button
+          onClick={() => setShowPicker(!showPicker)}
+          className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors ${
+            showPicker ? "bg-blue-500 border-blue-500 text-white" : "bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200"
+          }`}
+        >
+          {showPicker ? "✕" : "+"}
+        </button>
+      </div>
+
+      {/* Floating Emoji Picker Portal */}
+      {showPicker && (
+        <div className="absolute top-full right-0 z-100 mb-2 shadow-2xl animate-fade-in">
+          <EmojiPicker 
+            onEmojiClick={handleEmojiClick}
+            autoFocusSearch={false}
+            theme="light"
+            width={300}
+            height={400}
+            skinTonesDisabled
+            previewConfig={{ showPreview: false }}
+          />
+        </div>
+      )}
+
+      {/* Reaction Badges */}
+      <div className="flex flex-wrap gap-2 mt-2">
+        {Object.entries(reactionCounts).map(([emoji, count]) => (
+          <div
+            key={emoji}
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-700 animate-pop border border-gray-200"
+          >
+            <span>{emoji}</span>
+            <span>{count}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
