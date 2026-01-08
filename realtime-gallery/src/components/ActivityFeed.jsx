@@ -41,12 +41,14 @@ export default function ActivityFeed({ onTeleport }) {
           </div>
         )}
 
-        {data.activities.map((event) => (
+        {data.activities.map((event,index) => (
           <div 
             key={event.id}
             onClick={() => onTeleport(event.unsplashId)}
-            className="p-3 border-b border-gray-50 hover:bg-blue-50/50 cursor-pointer transition-all active:scale-95 group animate-slide-in-right"
-          >
+            className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-all active:scale-95 group animate-feed-item opacity-0"
+    // This adds a slight delay for the first 5 items to create a "stagger" effect
+    style={{ animationDelay: `${index < 10 ? index * 0.1 : 0}s` }}
+  >
             <div className="flex gap-3 items-center">
               {/* Miniature Thumbnail */}
               <div className="relative flex-shrink-0">

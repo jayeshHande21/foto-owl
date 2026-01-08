@@ -36,3 +36,31 @@
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out forwards;
 }
+
+@keyframes slideInAndScale {
+  0% {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  70% {
+    transform: translateX(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-feed-item {
+  animation: slideInAndScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes highlightNew {
+  0% { background-color: #f0f9ff; } /* Light blue */
+  100% { background-color: transparent; }
+}
+
+/* This only runs on the very first item in the list if it's new */
+.animate-feed-item:first-child {
+  animation: slideInAndScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, 
+             highlightNew 2s ease-out 0.5s forwards;
+}
