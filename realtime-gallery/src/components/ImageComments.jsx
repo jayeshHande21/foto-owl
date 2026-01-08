@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useImageActions } from "../hooks/useImageActions";
 
-export default function ImageComments({ imageId }) {
+export default function ImageComments({ imageId , img}) {
   const [text, setText] = useState("");
   const { comments, addComment } = useImageActions(imageId);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
-    addComment(text );
+    addComment(text , img);
     setText("");
   };
 

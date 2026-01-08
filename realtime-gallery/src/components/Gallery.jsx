@@ -5,13 +5,12 @@ import { useImageActions } from "../hooks/useImageActions";
 import ImageReactions from "./ImageReactions";
 import ImageComments from "./ImageComments";
 
+// Added 'img' to the parameter list so addReaction knows which thumbnail to broadcast
 function GalleryItem({ img, onOpen }) {
   const { totalReactions, addReaction } = useImageActions(img.id);
 
-
   return (
     <div className="relative group break-inside-avoid mb-4 overflow-hidden rounded-xl animate-fade-in shadow-sm hover:shadow-xl transition-all duration-300">
-      {/* The Image */}
       <img
         src={img.urls.small}
         alt={img.alt_description}
@@ -19,10 +18,9 @@ function GalleryItem({ img, onOpen }) {
         onClick={() => onOpen(img)}
       />
 
-      {/* The Hover Overlay */}
       <div 
         className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 cursor-pointer"
-        onClick={() => onOpen(img)} // Clicking overlay opens modal
+        onClick={() => onOpen(img)}
       >
         <div className="flex justify-end">
           {totalReactions > 0 && (
@@ -32,15 +30,15 @@ function GalleryItem({ img, onOpen }) {
           )}
         </div>
 
-        {/* Quick Reactions */}
         <div className="flex justify-center gap-4 translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
           {["❤️", "🔥", "😮"].map((emoji) => (
             <button
               key={emoji}
               className="text-2xl hover:scale-150 transition-transform active:scale-90"
               onClick={(e) => {
-                e.stopPropagation(); // Stops the modal from opening
-                addReaction(emoji);
+                e.stopPropagation();
+                // Pass 'img' as the second argument so the feed gets the thumbnail
+                addReaction(emoji, img); 
               }}
             >
               {emoji}
@@ -52,12 +50,28 @@ function GalleryItem({ img, onOpen }) {
   );
 }
 
-export default function Gallery() {
+// Receive props from App.jsx
+export default function Gallery({ teleportId, onModalClose }) {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } = useUnsplashImages();
   const [activeImage, setActiveImage] = useState(null);
   const { ref, inView } = useInView();
 
- 
+  // --- TELEPORT LOGIC ---
+  useEffect(() => {
+    if (teleportId && data) {
+      // Flatten all pages and find the image that matches the ID from the feed
+      const target = data.pages.flat().find((img) => img.id === teleportId);
+      if (target) {
+        queueMicrotask(() => setActiveImage(target));
+      }
+    }
+  }, [teleportId, data]);
+
+  // Handle closing modal and resetting teleport state
+  const handleClose = () => {
+    setActiveImage(null);
+    onModalClose();
+  };
 
   useEffect(() => {
     if (inView && hasNextPage) fetchNextPage();
@@ -77,35 +91,31 @@ export default function Gallery() {
         {isFetchingNextPage && <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />}
       </div>
 
-      {/* --- SPLIT SCREEN MODAL --- */}
       {activeImage && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-2 md:p-10 backdrop-blur-md">
           <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
             
-            {/* Close Button */}
             <button 
-              onClick={() => setActiveImage(null)}
+              onClick={handleClose} // Use handleClose instead of setActiveImage(null)
               className="absolute top-4 right-4 z-20 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition"
             >
               ✕
             </button>
 
-            {/* Left: Image (60%) */}
             <div className="w-full md:w-3/5 bg-black flex items-center justify-center overflow-hidden">
-            {/* <BurstLayer imageId={activeImage.id} /> */}
               <img src={activeImage.urls.regular} className="w-full h-full object-contain" alt="" />
             </div>
 
-            {/* Right: Social Sidebar (40%) */}
             <div className="w-full md:w-2/5 flex flex-col bg-white h-[50vh] md:h-auto overflow-hidden">
               <div className="p-4 border-b font-bold text-gray-800">Post Interactions</div>
               
               <div className="p-4 border-b bg-gray-50">
-                <ImageReactions imageId={activeImage.id} />
+                {/* Ensure these components receive the img object too */}
+                <ImageReactions imageId={activeImage.id} img={activeImage} />
               </div>
 
               <div className="flex-1 p-4 overflow-hidden">
-                <ImageComments imageId={activeImage.id} />
+                <ImageComments imageId={activeImage.id} img={activeImage} />
               </div>
             </div>
           </div>
