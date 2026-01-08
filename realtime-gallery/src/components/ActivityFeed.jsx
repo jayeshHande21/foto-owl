@@ -64,7 +64,12 @@ export default function ActivityFeed({ onTeleport }) {
               
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] text-gray-600 leading-tight">
-                  <span className="font-bold text-gray-900">User</span> 
+               <span 
+  className="font-black uppercase tracking-wider"
+  style={{ color: event.userColor || '#333' }}
+>
+  {event.userName || 'Someone'}
+</span>
                   {event.type === 'comment' ? ' added a comment' : ' sent a reaction'}
                 </p>
                 <p className="text-[10px] text-gray-400 truncate italic mt-0.5">

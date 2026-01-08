@@ -1,4 +1,5 @@
 import { db, id } from "../db";
+import { getRandomUser } from "../utils/identity";
 
 export function useImageActions(imageId) {
   const { data, isLoading } = db.useQuery({
@@ -12,10 +13,10 @@ export function useImageActions(imageId) {
   const reactions = imageDoc?.reactions ?? [];
   const comments = imageDoc?.comments ?? [];
 
-  // --- HELPER: BROADCAST TO GLOBAL FEED ---
-  // This is what makes the right sidebar come alive!
   const logActivity = (type, content, img) => {
-    if (!img) return; // Guard against missing image data
+    if (!img) return;
+
+    const fakeUser = getRandomUser();
 
     db.transact([
       db.tx.activities[id()].update({
@@ -23,7 +24,10 @@ export function useImageActions(imageId) {
         content, // emoji or text
         unsplashId: imageId,
         thumbnail: img.urls.thumb,
-        serverCreatedAt: Date.now(), // Used for sorting in ActivityFeed.jsx
+        serverCreatedAt: Date.now(),
+
+        userName: fakeUser.name,
+        userColor: fakeUser.color,
       }),
     ]);
   };
