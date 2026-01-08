@@ -4,7 +4,7 @@ A multi-user, real-time image interaction platform where every like, reaction, a
 
 Built for the **Fotoowl React Intern Assignment**, this project focuses on creating a "Global Pulse"—a shared digital space where interactions aren't just saved, but broadcasted.
 
-### 🌐 [Live Demo Link] | 🛠 [https://github.com/jayeshHande21/foto-owl]
+### 🌐 [https://foto-owl-kj5t.vercel.app/] | 🛠 [https://github.com/jayeshHande21/foto-owl]
 
 ---
 
